@@ -33,24 +33,6 @@
 
 A modern web browser (Chrome, Firefox, Edge, or Safari).
 
-### Local Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/Umangnamdeo/AudioSplit.git](https://github.com/Umangnamdeo/AudioSplit.git)
-
-```
-
-2. **Navigate to the directory:**
-```bash
-cd AudioSplit
-
-```
-
-
-3. **Open the project:**
-* Double-click `index.html` to open it directly in your browser, or
-* Launch it via the VS Code **Live Server** extension.
 
 
 
