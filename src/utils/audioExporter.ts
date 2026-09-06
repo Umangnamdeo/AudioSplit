@@ -177,6 +177,72 @@ export async function extractAudioFromFile(file: File, bitrate = '192'): Promise
 /**
  * Generates an authentic audio stem with unique harmonic characteristics
  */
+export async function generateFilteredStemFromFile(file: File, stemType: string): Promise<Blob> {
+  const arrayBuffer = await file.arrayBuffer();
+  const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  const decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  
+  const offlineCtx = new window.OfflineAudioContext(
+    decodedBuffer.numberOfChannels,
+    decodedBuffer.length,
+    decodedBuffer.sampleRate
+  );
+
+  const source = offlineCtx.createBufferSource();
+  source.buffer = decodedBuffer;
+
+  const type = stemType.toLowerCase();
+  
+  // Basic EQ-based fake stem separation
+  const filter1 = offlineCtx.createBiquadFilter();
+  const filter2 = offlineCtx.createBiquadFilter();
+  
+  if (type.includes('vocal')) {
+    // Aggressive vocal isolation: Bandpass to focus heavily on the human voice range
+    filter1.type = 'bandpass';
+    filter1.frequency.value = 1200; // Center of typical vocal frequencies
+    filter1.Q.value = 1.2; // Tighter frequency band
+    
+    filter2.type = 'highpass';
+    filter2.frequency.value = 300; // Strongly cut kick and bass
+  } else if (type.includes('bass')) {
+    filter1.type = 'lowpass';
+    filter1.frequency.value = 200;
+    filter2.type = 'lowpass';
+    filter2.frequency.value = 200;
+  } else if (type.includes('drum')) {
+    filter1.type = 'peaking';
+    filter1.frequency.value = 100; // Kick
+    filter1.gain.value = 10;
+    filter2.type = 'highpass';
+    filter2.frequency.value = 3000; // Hihat/Snare snap
+  } else if (type.includes('guitar')) {
+    filter1.type = 'bandpass';
+    filter1.frequency.value = 1000;
+    filter1.Q.value = 0.5;
+    filter2.type = 'peaking';
+    filter2.frequency.value = 3000;
+    filter2.gain.value = 5;
+  } else {
+    // Other
+    filter1.type = 'bandpass';
+    filter1.frequency.value = 500;
+    filter1.Q.value = 1;
+    filter2.type = 'bandpass';
+    filter2.frequency.value = 500;
+  }
+
+  source.connect(filter1);
+  filter1.connect(filter2);
+  filter2.connect(offlineCtx.destination);
+  source.start(0);
+
+  const renderedBuffer = await offlineCtx.startRendering();
+  const wavBlob = audioBufferToWav(renderedBuffer);
+  audioContext.close();
+  return wavBlob;
+}
+
 export function generateSyntheticStem(stemType: string, durationSeconds = 5): Blob {
   const sampleRate = 44100;
   const numSamples = Math.floor(sampleRate * durationSeconds);

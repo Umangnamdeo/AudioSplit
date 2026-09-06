@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, Music, Download, Loader2, Volume2, VolumeX, Headphones, Play, Pause, RefreshCw, CheckCircle2, Sparkles, Archive } from 'lucide-react';
 import { StemTrack } from '../types';
-import { generateSyntheticStem, downloadBlob, downloadAllStemsAsZip } from '../utils/audioExporter';
+import { generateSyntheticStem, generateFilteredStemFromFile, downloadBlob, downloadAllStemsAsZip } from '../utils/audioExporter';
 
 interface StemWithAudio extends StemTrack {
   waveform: number[];
@@ -91,25 +91,40 @@ export default function StemSplitterTab() {
       }
     } catch (err) {
       console.error('Stem split error:', err);
-      // Resilient fallback
-      const defaultStemNames = ['Vocals', 'Guitar', 'Drums', 'Bass', 'Other Instruments'];
-      const fallbackStems: StemWithAudio[] = defaultStemNames.map((name, i) => {
-        const id = name.toLowerCase().split(' ')[0];
-        const waveform = Array.from({ length: 36 }).map((_, idx) => 30 + ((idx * 17 + i * 31) % 60));
-        const blob = generateSyntheticStem(name, 6);
-        return {
-          id,
-          name,
-          url: '',
-          volume: 80,
-          isMuted: false,
-          isSolo: false,
-          waveform,
-          audioBlob: blob,
-          audioUrl: URL.createObjectURL(blob)
-        };
-      });
-      setStems(fallbackStems);
+      // Resilient fallback using the uploaded file
+      try {
+        const defaultStemNames = ['Vocals', 'Guitar', 'Drums', 'Bass', 'Other Instruments'];
+        
+        // Generate stems asynchronously
+        const fallbackStems = await Promise.all(defaultStemNames.map(async (name, i) => {
+          const id = name.toLowerCase().split(' ')[0];
+          const waveform = Array.from({ length: 36 }).map((_, idx) => 30 + ((idx * 17 + i * 31) % 60));
+          
+          let blob;
+          try {
+            blob = await generateFilteredStemFromFile(file, name);
+          } catch (e) {
+            console.error(`Failed to generate stem ${name} from file, falling back to synthetic`, e);
+            blob = generateSyntheticStem(name, 6);
+          }
+          
+          return {
+            id,
+            name,
+            url: '',
+            volume: 80,
+            isMuted: false,
+            isSolo: false,
+            waveform,
+            audioBlob: blob,
+            audioUrl: URL.createObjectURL(blob)
+          };
+        }));
+        
+        setStems(fallbackStems);
+      } catch (fallbackErr) {
+        console.error('Total failure in fallback:', fallbackErr);
+      }
       setStatus('done');
     }
   };
