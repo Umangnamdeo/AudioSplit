@@ -197,7 +197,7 @@ export default function StemSplitterTab() {
         <div 
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
-          className="w-full border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500/60 transition-colors rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer bg-slate-50/50 dark:bg-slate-900/20 min-h-[300px]"
+          className="w-full border-2 border-dashed border-[#1E293B] hover:border-amber-500/50 transition-colors rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer bg-transparent min-h-[300px]"
           onClick={() => fileInputRef.current?.click()}
         >
           <input 
@@ -212,28 +212,31 @@ export default function StemSplitterTab() {
             }}
           />
           
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mb-3 group-hover:text-amber-500 transition-colors">
-            <UploadCloud size={32} />
+          <div className="w-14 h-14 bg-[#1A2436] text-slate-300 group-hover:text-amber-500 transition-colors rounded-full flex items-center justify-center mb-4">
+            <UploadCloud size={28} />
           </div>
-          <p className="text-slate-800 dark:text-slate-100 font-semibold text-lg">Drop an MP3 or WAV file here</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Our AI separates audio into 5 individual studio stems</p>
+          <p className="text-white font-semibold text-base">Drag & drop your MP3 or WAV file here</p>
+          <p className="text-xs text-slate-400 mt-1">Our AI separates audio into 5 individual studio stems</p>
 
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-6 flex items-center gap-2">
             <button
               type="button"
-              onClick={handleLoadSampleAudio}
-              className="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-all shadow-sm cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLoadSampleAudio();
+              }}
+              className="px-4 py-2 rounded-full bg-transparent border border-amber-500/50 hover:bg-amber-500/10 text-amber-500 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <Sparkles size={13} />
+              <Sparkles size={14} />
               <span>Try Demo Audio Track</span>
             </button>
           </div>
 
           {file && (
-            <div className="mt-6 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between w-full max-w-sm shadow-md">
+            <div className="mt-6 p-4 bg-[#1E293B] border border-[#334155] rounded-xl flex items-center justify-between w-full max-w-sm shadow-md">
               <div className="flex items-center gap-3 overflow-hidden">
                 <Music size={20} className="text-amber-500 shrink-0" />
-                <span className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{file.name}</span>
+                <span className="text-sm font-medium text-white truncate">{file.name}</span>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); handleSplit(); }}
@@ -247,10 +250,10 @@ export default function StemSplitterTab() {
       )}
 
       {status === 'processing' && (
-        <div className="w-full py-20 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/20 rounded-xl border border-slate-200 dark:border-slate-800">
-          <Loader2 size={48} className="text-amber-500 animate-spin mb-6" />
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">Analyzing Audio & Isolating Stems</h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md text-sm">
+        <div className="w-full py-20 flex flex-col items-center justify-center text-center bg-slate-100 dark:bg-[#1A2436] rounded-xl border border-slate-200 dark:border-[#334155]">
+          <Loader2 size={48} className="text-amber-600 dark:text-amber-500 animate-spin mb-6" />
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Analyzing Audio & Isolating Stems</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
             AI neural networks are isolating Vocals, Guitar, Drums, Bass, and Other Instruments for "{file?.name}".
           </p>
         </div>
@@ -258,7 +261,7 @@ export default function StemSplitterTab() {
 
       {status === 'done' && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-[#1E293B] pb-4 gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs uppercase tracking-widest font-bold text-amber-600 dark:text-amber-500">Separated Stems</span>
@@ -266,13 +269,13 @@ export default function StemSplitterTab() {
                   <CheckCircle2 size={13} /> Ready (5 Tracks)
                 </span>
               </div>
-              <p className="text-sm text-slate-700 dark:text-slate-300 mt-0.5 font-medium">{file?.name}</p>
+              <p className="text-sm text-slate-800 dark:text-slate-200 mt-0.5 font-medium">{file?.name}</p>
             </div>
             
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleMasterPlayback}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer"
+                className="px-4 py-2 bg-slate-100 dark:bg-[#1A2436] hover:bg-slate-200 dark:hover:bg-[#334155] text-slate-800 dark:text-white text-xs font-semibold rounded-lg transition-all flex items-center gap-2 border border-slate-200 dark:border-[#334155] shadow-sm cursor-pointer"
               >
                 {isPlayingAll ? <Pause size={14} /> : <Play size={14} />}
                 {isPlayingAll ? 'Pause Multitrack' : 'Play Multitrack'}
@@ -292,8 +295,8 @@ export default function StemSplitterTab() {
             {stems.map((stem) => (
               <div 
                 key={stem.id} 
-                className={`flex flex-col sm:flex-row sm:items-center gap-4 p-3.5 bg-slate-50 dark:bg-slate-900/60 border rounded-xl transition-all ${
-                  stem.isSolo ? 'border-amber-500/60 bg-amber-500/5 dark:bg-amber-950/20' : 'border-slate-200 dark:border-slate-800'
+                className={`flex flex-col sm:flex-row sm:items-center gap-4 p-3.5 bg-white dark:bg-[#1A2436] border rounded-xl transition-all ${
+                  stem.isSolo ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' : 'border-slate-200 dark:border-[#334155]'
                 }`}
               >
                 
@@ -301,7 +304,7 @@ export default function StemSplitterTab() {
                 <div className="w-28 shrink-0 flex items-center gap-2">
                   <span className={`text-xs font-bold uppercase tracking-wider ${
                     stem.isMuted 
-                      ? 'text-slate-400 dark:text-slate-600 line-through' 
+                      ? 'text-slate-400 dark:text-slate-500 line-through' 
                       : 'text-slate-800 dark:text-slate-200'
                   }`}>
                     {stem.name}
@@ -309,13 +312,13 @@ export default function StemSplitterTab() {
                 </div>
 
                 {/* Waveform Visualization */}
-                <div className="flex-1 h-8 flex items-center gap-1 opacity-90 px-2 bg-slate-200/60 dark:bg-slate-950/40 rounded-lg py-1 border border-slate-200 dark:border-slate-800/40">
+                <div className="flex-1 h-8 flex items-center gap-1 opacity-90 px-2 bg-slate-100 dark:bg-[#0B1320] rounded-lg py-1 border border-slate-200 dark:border-[#1E293B]">
                   {stem.waveform.map((height, i) => (
                     <div 
                       key={i} 
                       className={`flex-1 rounded-full transition-all duration-150 ${
                         stem.isMuted
-                          ? 'bg-slate-300 dark:bg-slate-800'
+                          ? 'bg-slate-300 dark:bg-slate-700'
                           : stem.isSolo
                           ? 'bg-amber-500'
                           : i % 3 === 0
@@ -337,8 +340,8 @@ export default function StemSplitterTab() {
                       onClick={() => toggleMute(stem.id)}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors flex items-center gap-1 ${
                         stem.isMuted 
-                          ? 'bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800/40' 
-                          : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-900/50' 
+                          : 'bg-slate-100 dark:bg-[#0B1320] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-transparent dark:border-[#334155]'
                       }`}
                       title={stem.isMuted ? 'Unmute' : 'Mute'}
                     >
@@ -349,8 +352,8 @@ export default function StemSplitterTab() {
                       onClick={() => toggleSolo(stem.id)}
                       className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors flex items-center gap-1 ${
                         stem.isSolo 
-                          ? 'bg-amber-600 text-white' 
-                          : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400'
+                          ? 'bg-amber-600 text-white border border-amber-600' 
+                          : 'bg-slate-100 dark:bg-[#0B1320] text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 border border-transparent dark:border-[#334155]'
                       }`}
                       title={stem.isSolo ? 'Disable Solo' : 'Solo Track'}
                     >
@@ -366,7 +369,7 @@ export default function StemSplitterTab() {
                       max="100" 
                       value={stem.volume} 
                       onChange={(e) => updateVolume(stem.id, parseInt(e.target.value))}
-                      className="w-16 h-1 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                      className="w-16 h-1 bg-slate-300 dark:bg-[#334155] rounded-lg appearance-none cursor-pointer accent-amber-600"
                       title={`Volume: ${stem.volume}%`}
                     />
                   </div>
@@ -376,7 +379,7 @@ export default function StemSplitterTab() {
                     href={stem.audioUrl || undefined}
                     download={`${baseName}_${stem.name.replace(/\s+/g, '_')}.wav`}
                     onClick={() => handleDownloadStem(stem)}
-                    className="p-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors inline-flex items-center justify-center cursor-pointer"
+                    className="p-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-[#334155] transition-colors inline-flex items-center justify-center cursor-pointer"
                     title={`Download ${stem.name} WAV`}
                   >
                     <Download size={15} />
@@ -396,7 +399,7 @@ export default function StemSplitterTab() {
                 setStatus('idle');
                 setStems([]);
               }}
-              className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1.5 py-2 px-4 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-transparent"
+              className="text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 py-2 px-4 rounded-lg bg-slate-100 dark:bg-[#1A2436] hover:bg-slate-200 dark:hover:bg-[#334155] transition-colors cursor-pointer border border-slate-200 dark:border-[#334155]"
             >
               <RefreshCw size={13} />
               Start over with a new track
