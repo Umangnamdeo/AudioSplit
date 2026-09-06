@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Google Site Verification (if managed via GitHub Secret or CI/CD)
+# public/google*.html

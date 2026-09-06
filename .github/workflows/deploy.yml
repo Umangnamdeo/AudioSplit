@@ -30,6 +30,8 @@ jobs:
         run: npm install
 
       - name: Build project
+        env:
+          GOOGLE_SITE_VERIFICATION: ${{ secrets.GOOGLE_SITE_VERIFICATION || 'google4ddf6a8fb9c58e46.html' }}
         run: npm run build
 
       - name: Upload Pages artifact

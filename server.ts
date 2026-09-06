@@ -98,7 +98,7 @@ async function startServer() {
   });
 
   // Google Site Verification endpoint
-  app.get("/google4ddf6a8fb9c58e46.html", (req, res) => {
+  app.get(["/google4ddf6a8fb9c58e46.html", "/AudioSplit/google4ddf6a8fb9c58e46.html"], (req, res) => {
     res.type("text/html").send("google-site-verification: google4ddf6a8fb9c58e46.html");
   });
 

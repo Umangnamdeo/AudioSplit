@@ -1,0 +1,8 @@
+{
+  "name": "AudioSplit",
+  "description": "High-fidelity audio extraction and stem separator in your browser",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
