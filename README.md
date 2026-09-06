@@ -1,11 +1,10 @@
-<div align="center">
+# AudioSplit 🎵
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+A minimalist, privacy-focused web application for audio extraction and multi-track stem separation.
 
-  <h1>Built with AI Studio</h2>
-
-  <p>The fastest path from prompt to production with Gemini.</p>
-
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+### Key Features
+- **MP4 to MP3 Extraction:** Fast, client-side video-to-audio extraction powered by WebAssembly (`@ffmpeg/ffmpeg`).
+- **AI Stem Splitting:** Isolate Vocals, Guitar, Drums, Bass, and Other accompaniment tracks using Demucs.
+- **Track Controls:** In-browser audio player with waveform previews, mute/solo toggles, and per-stem download options (individual stems or batch ZIP).
+- **Authentication:** Dual OAuth sign-in via Google and Meta.
+- **Minimalist UI:** Clean, distraction-free interface built with React and Tailwind CSS.
