@@ -197,7 +197,7 @@ export async function generateFilteredStemFromFile(file: File, stemType: string)
   const filter1 = offlineCtx.createBiquadFilter();
   const filter2 = offlineCtx.createBiquadFilter();
   
-  if (type.includes('vocal')) {
+  if (type === 'vocals' || type === 'vocal') {
     // Aggressive vocal isolation: Bandpass to focus heavily on the human voice range
     filter1.type = 'bandpass';
     filter1.frequency.value = 1200; // Center of typical vocal frequencies
@@ -216,13 +216,14 @@ export async function generateFilteredStemFromFile(file: File, stemType: string)
     filter1.gain.value = 10;
     filter2.type = 'highpass';
     filter2.frequency.value = 3000; // Hihat/Snare snap
-  } else if (type.includes('guitar')) {
-    filter1.type = 'bandpass';
-    filter1.frequency.value = 1000;
-    filter1.Q.value = 0.5;
-    filter2.type = 'peaking';
-    filter2.frequency.value = 3000;
-    filter2.gain.value = 5;
+  } else if (type.includes('voice + guitar') || type.includes('guitar')) {
+    // Isolate both Voice and Guitar (broad midrange, highpass to cut bass/kick)
+    filter1.type = 'highpass';
+    filter1.frequency.value = 150; // Keep slightly lower than just guitar to retain chest voice
+    
+    filter2.type = 'highshelf';
+    filter2.frequency.value = 8000; 
+    filter2.gain.value = -10; // gently roll off the extreme cymbal highs, but keep vocal breath and guitar strum
   } else {
     // Other
     filter1.type = 'bandpass';

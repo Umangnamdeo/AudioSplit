@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, Music, Download, Loader2, Volume2, VolumeX, Headphones, Play, Pause, RefreshCw, CheckCircle2, Sparkles, Archive } from 'lucide-react';
 import { StemTrack } from '../types';
 import { generateSyntheticStem, generateFilteredStemFromFile, downloadBlob, downloadAllStemsAsZip } from '../utils/audioExporter';
+import CreatorMessageModal from './CreatorMessageModal';
 
 interface StemWithAudio extends StemTrack {
   waveform: number[];
@@ -56,76 +57,39 @@ export default function StemSplitterTab() {
     setIsPlayingAll(false);
     
     try {
-      const response = await fetch('/api/v1/split', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name })
-      });
-      const data = await response.json();
+      const defaultStemNames = ['Vocals', 'Voice + Guitar', 'Drums', 'Bass', 'Other Instruments'];
       
-      if (data.status === 'success') {
-        const enrichedStems: StemWithAudio[] = data.stems.map((s: { id: string; name: string }) => {
-          // Pre-generate stable waveform bars
-          const waveform = Array.from({ length: 36 }).map((_, idx) => {
-            const seed = (s.id.charCodeAt(0) * 17 + idx * 23) % 100;
-            return 25 + (seed % 65);
-          });
-
-          // Generate synthetic playable audio for this stem
-          const blob = generateSyntheticStem(s.name, 6);
-          const url = URL.createObjectURL(blob);
-
-          return {
-            ...s,
-            volume: 80,
-            isMuted: false,
-            isSolo: false,
-            waveform,
-            audioBlob: blob,
-            audioUrl: url
-          };
-        });
-
-        setStems(enrichedStems);
-        setStatus('done');
-      }
+      // Generate stems asynchronously
+      const localStems = await Promise.all(defaultStemNames.map(async (name, i) => {
+        const id = name.toLowerCase().split(' ')[0];
+        const waveform = Array.from({ length: 36 }).map((_, idx) => 30 + ((idx * 17 + i * 31) % 60));
+        
+        let blob;
+        try {
+          blob = await generateFilteredStemFromFile(file, name);
+        } catch (e) {
+          console.warn(`Failed to generate stem ${name} from file, falling back to synthetic`, e);
+          blob = generateSyntheticStem(name, 6);
+        }
+        
+        return {
+          id,
+          name,
+          url: '',
+          volume: 80,
+          isMuted: false,
+          isSolo: false,
+          waveform,
+          audioBlob: blob,
+          audioUrl: URL.createObjectURL(blob)
+        };
+      }));
+      
+      setStems(localStems);
+      setStatus('done');
     } catch (err) {
       console.error('Stem split error:', err);
-      // Resilient fallback using the uploaded file
-      try {
-        const defaultStemNames = ['Vocals', 'Guitar', 'Drums', 'Bass', 'Other Instruments'];
-        
-        // Generate stems asynchronously
-        const fallbackStems = await Promise.all(defaultStemNames.map(async (name, i) => {
-          const id = name.toLowerCase().split(' ')[0];
-          const waveform = Array.from({ length: 36 }).map((_, idx) => 30 + ((idx * 17 + i * 31) % 60));
-          
-          let blob;
-          try {
-            blob = await generateFilteredStemFromFile(file, name);
-          } catch (e) {
-            console.error(`Failed to generate stem ${name} from file, falling back to synthetic`, e);
-            blob = generateSyntheticStem(name, 6);
-          }
-          
-          return {
-            id,
-            name,
-            url: '',
-            volume: 80,
-            isMuted: false,
-            isSolo: false,
-            waveform,
-            audioBlob: blob,
-            audioUrl: URL.createObjectURL(blob)
-          };
-        }));
-        
-        setStems(fallbackStems);
-      } catch (fallbackErr) {
-        console.error('Total failure in fallback:', fallbackErr);
-      }
-      setStatus('done');
+      setStatus('idle');
     }
   };
 
@@ -214,6 +178,8 @@ export default function StemSplitterTab() {
 
   return (
     <div className="w-full h-full flex flex-col gap-8">
+      <CreatorMessageModal />
+      
       {/* Hidden audio players for live multitrack playback */}
       {stems.map(stem => (
         stem.audioUrl ? (
